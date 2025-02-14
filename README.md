@@ -30,6 +30,9 @@ Une équipe composée de **quatre spécialistes**, chacun expert dans son domain
 - **Nolan CANO** – Spécialiste **applicatif**  
 - **Antonin AMBOISE** – Spécialiste **architecture data**  
 
+## Prérequis
+La lib DHT et LiquidCrystal (déjà présente dans le repo) sont nécéssaire pour la raspberry.
+
 ---
 
 🚀 *SmartC : Au service de la sécurité des travailleurs.* 
