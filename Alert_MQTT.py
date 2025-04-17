@@ -1,4 +1,4 @@
-from machine import Pin
+from machine import Pin, ADC
 from time import sleep
 import dht
 import time
@@ -12,17 +12,27 @@ esp.osdebug(None)
 import gc
 gc.collect()
 
-ssid = 'chocolatAuLait'
-password = 'tomate59'
-mqtt_server = '192.168.31.106'
+ssid = 'HONOR Magic5 Lite 5G'
+password = 'azerttreza'
+mqtt_server = '192.168.212.82'
 mqtt_user = ''
 mqtt_pass = ''
 
 client_id = ubinascii.hexlify(machine.unique_id())
-topic_pub_temp = b'temperature'
-topic_pub_hum = b'humidity'
+topic_pub_gaslim = b'gaslimit'
+topic_pub_gasval = b'gas'
+topic_sub_alert = b'alert'
 
-sensor_dht = dht.DHT22(Pin(23))
+#MQ2
+signalDO = Pin(16, Pin.IN)
+signalAO = ADC(Pin(34))
+#signalAO.width(ADC.WIDTH_12BIT)
+signalAO.atten(ADC.ATTN_11DB) # ~3.3V
+
+#Alert
+pin_alert = Pin(2, mode=Pin.OUT)
+
+lastSensor = ""
 
 timeout = 0
 wlan = network.WLAN(network.STA_IF)
@@ -42,10 +52,20 @@ if not wlan.isconnected():
 print("\nWi-Fi Config: ", wlan.ifconfig())
 timeout = 0
 
+def sub_cb(topic, msg):
+  print((topic, msg))
+  if topic == b'alert' and msg == b'1':
+    pin_alert.on()
+  elif topic == b'alert' and msg == b'0':
+    pin_alert.off()
+    
+
 def connect_mqtt():
-  global client_id, mqtt_server
+  global client_id, mqtt_server, alert_sub
   client = MQTTClient(client_id, mqtt_server)
+  client.set_callback(sub_cb)
   client.connect()
+  client.subscribe(topic_sub_alert)
   print(f'Connected to %s MQTT broker' % (mqtt_server))
   return client
 
@@ -54,20 +74,10 @@ try:
 except OSError as e:
   print(f"Connection to MQTT broker failed failed : {e}")
   exit()
-
-while (1): 
-    try:
-        sensor_dht.measure()
-        humidity = sensor_dht.humidity()
-        temperature = sensor_dht.temperature()
-        print(f"Humidité : {humidity} %")
-        print(f"Température: {temperature} C")
-        print(f"Température CPU: {cput} C")
-        client.ping()
-        client.publish(topic_pub_temp, str(temperature).encode())
-        client.publish(topic_pub_hum, str(humidity).encode())
-    except Exception as e:
-        print(f"Erreur DHT22 : {e}")
-        humidity = None
-        temperature = None
-    sleep(3)
+  
+while True:
+  try:
+    time.sleep_ms(2000)
+    client.check_msg()
+  except OSError as e:
+    restart_and_reconnect()
