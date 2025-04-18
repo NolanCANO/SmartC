@@ -4,7 +4,7 @@ Ce projet configure une Raspberry Pi pour :
 
 - Utiliser **Mosquitto** comme broker MQTT (au démarrage).
 - Lancer un script **Python automatiquement** au boot.
-- S'assurer que les **ports MQTT (1883)** et **SSH (22)** sont ouverts.
+- S'assurer que les **ports MQTT (1883)**, **SSH (22)**, **Grafana (3000)** et **InfluxDB(8086)** sont ouverts.
 
 ---
 
