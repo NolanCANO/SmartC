@@ -1,4 +1,4 @@
-# 📡 Raspberry Pi MQTT Setup & Script Autostart
+# 📡 Raspberry Pi Setup
 
 Ce projet configure une Raspberry Pi pour :
 
